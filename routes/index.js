@@ -38,6 +38,11 @@ router.get('/edit', isloggedIn ,async function(req, res) {
 router.get('/upload', isloggedIn ,function(req, res) {
   res.render('upload', {footer: true});
 });
+router.get("/username/:username", isloggedIn, async function(req, res){
+  const regex = new RegExp(`^${req.params.username}`, 'i');
+  const users = await userModel.find({username: regex});
+  res.json(users);
+})
 
 router.post("/register", function(req, res, next){
   const userData = new userModel({
