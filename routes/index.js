@@ -17,8 +17,9 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/feed', isloggedIn ,async function(req, res) {
+  const user =await userModel.findOne({username: req.session.passport.user})
   const posts = await postModel.find().populate("user")
-  res.render('feed', {footer: true, posts});
+  res.render('feed', {footer: true, posts, user});
 });
 
 router.get('/profile', isloggedIn ,async function(req, res) {
@@ -29,6 +30,18 @@ router.get('/profile', isloggedIn ,async function(req, res) {
 router.get('/search', isloggedIn ,function(req, res) {
   res.render('search', {footer: true});
 });
+
+router.get("/like/post/:id", isloggedIn, async function(req, res){
+  const user = await userModel.findOne({username:req.session.passport.user});
+  const post = await postModel.findOne({_id: req.params.id});
+  if (post.likes.indexOf(user._id) === -1){
+    post.likes.push(user._id)
+  }else{
+    post.likes.splice(post.likes.indexOf(user._id), 1);
+  }
+  await post.save();
+  res.redirect("/feed");
+})
 
 router.get('/edit', isloggedIn ,async function(req, res) {
   const user = await userModel.findOne({username: req.session.passport.user})
